@@ -21,7 +21,7 @@ export function CalendarGrid() {
     <div className="flex h-full flex-col">
       {/* Header */}
       <div className="mb-4">
-        <h1 className="text-4xl font-bold tracking-tight text-balance">
+        <h1 className="text-4xl font-bold tracking-tight text-balance text-foreground">
           {currentDate.toLocaleString("en-US", { month: "long", year: "numeric" })}
         </h1>
       </div>
