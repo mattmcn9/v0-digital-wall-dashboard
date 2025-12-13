@@ -10,15 +10,21 @@ import { useEffect, useState } from "react"
 
 export default function DashboardPage() {
   const { mode, holiday } = useThemeContext()
-  const [currentTime, setCurrentTime] = useState(new Date())
+  const [currentTime, setCurrentTime] = useState<Date | null>(null)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
+    setCurrentTime(new Date())
     const timer = setInterval(() => {
       setCurrentTime(new Date())
     }, 1000)
 
     return () => clearInterval(timer)
   }, [])
+
+  // Convert to Eastern Time for display
+  const easternTime = currentTime ? new Date(currentTime.toLocaleString("en-US", { timeZone: "America/New_York" })) : null
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-background p-4">
@@ -28,25 +34,35 @@ export default function DashboardPage() {
         {/* Header with time - compact for vertical space */}
         <div className="flex shrink-0 items-center justify-between">
           <div>
-            <div className="flex items-center gap-2 text-4xl font-bold tracking-tight">
+            <div className="flex items-center gap-2 text-4xl font-bold tracking-tight text-foreground">
               <Clock className="h-8 w-8 text-primary" />
-              {currentTime.toLocaleTimeString("en-US", {
-                hour: "numeric",
-                minute: "2-digit",
-                hour12: true,
-              })}
+              {mounted && easternTime ? (
+                easternTime.toLocaleTimeString("en-US", {
+                  hour: "numeric",
+                  minute: "2-digit",
+                  hour12: true,
+                  timeZone: "America/New_York",
+                })
+              ) : (
+                "--:-- --"
+              )}
             </div>
             <div className="mt-1 text-xs text-muted-foreground">
-              {currentTime.toLocaleDateString("en-US", {
-                weekday: "long",
-                month: "long",
-                day: "numeric",
-              })}
+              {mounted && easternTime ? (
+                easternTime.toLocaleDateString("en-US", {
+                  weekday: "long",
+                  month: "long",
+                  day: "numeric",
+                  timeZone: "America/New_York",
+                })
+              ) : (
+                "Loading..."
+              )}
             </div>
           </div>
 
           {/* Mode indicator - compact */}
-          <div className="flex items-center gap-2 rounded-full border bg-card px-3 py-1.5 text-xs">
+          <div className="flex items-center gap-2 rounded-full border bg-card px-3 py-1.5 text-xs text-card-foreground">
             <div className={`h-2 w-2 rounded-full ${mode === "night" ? "bg-blue-500" : "bg-yellow-500"}`} />
             <span className="font-medium capitalize">{mode}</span>
             {holiday && (

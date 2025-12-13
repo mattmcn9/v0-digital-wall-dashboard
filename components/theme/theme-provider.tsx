@@ -14,6 +14,9 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const { mode, holiday } = useTheme()
+  
+  console.log("[ThemeProvider Debug] Current mode:", mode, "Will apply dark class:", mode === "night")
+  console.log("[ThemeProvider Debug] Holiday:", holiday)
 
   return (
     <ThemeContext.Provider value={{ mode, holiday }}>

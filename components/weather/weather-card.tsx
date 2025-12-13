@@ -31,7 +31,7 @@ export function WeatherCard() {
 
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <div className="text-5xl font-bold tracking-tight">{weather.temperature}°</div>
+          <div className="text-5xl font-bold tracking-tight text-card-foreground">{weather.temperature}°</div>
           <div className="mt-1 text-sm text-muted-foreground">{weather.description}</div>
         </div>
 
@@ -41,11 +41,11 @@ export function WeatherCard() {
       <div className="flex items-center justify-between border-t pt-4 text-sm">
         <div>
           <div className="text-muted-foreground">High</div>
-          <div className="font-semibold">{weather.high}°</div>
+          <div className="font-semibold text-card-foreground">{weather.high}°</div>
         </div>
         <div className="text-right">
           <div className="text-muted-foreground">Low</div>
-          <div className="font-semibold">{weather.low}°</div>
+          <div className="font-semibold text-card-foreground">{weather.low}°</div>
         </div>
       </div>
     </div>
