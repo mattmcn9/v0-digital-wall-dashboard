@@ -1,6 +1,8 @@
 # Node.js modules
 node_modules/
 
+public/photos/
+
 # Logs
 *.log
 npm-debug.log*
@@ -33,3 +35,6 @@ yarn.lock
 .next/
 # Snyk Security Extension - AI Rules (auto-generated)
 .github/instructions/snyk_rules.instructions.md
+
+# Snyk Security Extension - AI Rules (auto-generated)
+.cursor/rules/snyk_rules.mdc
