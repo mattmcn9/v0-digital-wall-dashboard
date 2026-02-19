@@ -18,15 +18,17 @@ A full-screen, wall-mounted digital dashboard UI that displays a monthly calenda
 - Location display
 - Auto-refreshes every 30 minutes
 
-### 📸 Photo Slideshow
+### 📸 Photo & Video Slideshow
 - Rotating slideshow with fade transitions
+- Supports both photos and videos
 - Photo captions and timestamps
 - Fit-to-frame cropping
 - Auto-dims in night mode
-- Changes photo every 10 seconds
+- Photos display for 25 seconds, videos up to 3 minutes
 
 ### 🌙 Night Mode
-- Automatically activates between 8 PM - 6 AM
+- Activates based on actual sunrise/sunset times for your location
+- Falls back to 8 PM - 6 AM Eastern Time if location unavailable
 - Reduced brightness and dark theme
 - Dimmed photo slideshow
 - Optimized for nighttime viewing
@@ -43,7 +45,10 @@ A full-screen, wall-mounted digital dashboard UI that displays a monthly calenda
 
 - **Framework**: Next.js 16 with React 19
 - **Styling**: TailwindCSS v4
-- **Build Tool**: Vercel
+- **Testing**: Vitest with React Testing Library
+- **Date Handling**: date-fns
+- **Package Manager**: pnpm
+- **Build/Deploy**: Vercel
 - **Font**: Geist Sans & Geist Mono
 
 ## Setup
@@ -51,17 +56,18 @@ A full-screen, wall-mounted digital dashboard UI that displays a monthly calenda
 1. Clone the repository
 2. Install dependencies:
    \`\`\`bash
-   npm install
+   pnpm install
    \`\`\`
-3. Run the development server:
+3. Add photos/videos to `public/photos/` directory (optional)
+4. Run the development server:
    \`\`\`bash
-   npm run dev
+   pnpm dev
    \`\`\`
-4. Open [http://localhost:3000](http://localhost:3000)
+5. Open [http://localhost:3000](http://localhost:3000)
 
 ## API Integration
 
-The dashboard uses mock data by default. To connect real data sources:
+The dashboard includes working integrations for weather and local photos. Calendar uses mock data by default.
 
 ### Google Calendar
 Edit `api/google-calendar.ts` to integrate with Google Calendar API:
@@ -73,22 +79,20 @@ export async function getCalendarEvents(year: number, month: number) {
 \`\`\`
 
 ### Weather API
-Edit `api/weather.ts` to integrate with a weather service:
-\`\`\`typescript
-// Use OpenWeatherMap, WeatherAPI, or similar
-export async function getWeather() {
-  // Add weather API integration here
-}
-\`\`\`
+The weather integration is fully implemented using free APIs (no API key required):
+- **Open-Meteo API**: Provides current temperature, high/low, and weather conditions
+- **OpenStreetMap Nominatim**: Reverse geocoding for location display
+- **Browser Geolocation**: Automatically detects user location
+- **Sunrise/Sunset**: Calculated using NOAA solar algorithm for accurate night mode timing
 
-### Google Photos
-Edit `api/google-photos.ts` to integrate with Google Photos API:
-\`\`\`typescript
-// Replace mock data with actual API calls
-export async function getPhotos() {
-  // Add Google Photos API integration here
-}
-\`\`\`
+The weather updates automatically and requires no configuration.
+
+### Local Photos & Videos
+Place your media files in the `public/photos/` directory. Supported formats:
+- **Images**: .jpg, .jpeg, .png, .webp, .gif, .svg
+- **Videos**: .mp4, .webm, .mov
+
+The slideshow automatically picks up files from this directory via the `/api/photos` route.
 
 ## Deployment
 
@@ -126,16 +130,33 @@ Edit `config/holidays.json` to add or modify holiday themes:
 \`\`\`
 
 ### Night Mode Schedule
-Edit `hooks/use-theme.ts` to customize night mode hours:
+Night mode uses actual sunrise/sunset times when weather data is available. To customize the fallback hours, edit `hooks/use-theme.ts`:
 \`\`\`typescript
-// Change the hour values
-const isNight = hour >= 20 || hour < 6
+// Change the fallback hour values (used when location unavailable)
+export function isNightByHour(hour: number): boolean {
+  return hour >= 20 || hour < 6
+}
 \`\`\`
 
 ### Refresh Intervals
 - Calendar: 10 minutes (in `hooks/use-calendar.ts`)
-- Weather: 30 minutes (in `hooks/use-weather.ts`)
-- Photos: 10 seconds per photo (in `hooks/use-photos.ts`)
+- Photos: 25 seconds per photo, videos up to 3 minutes (in `hooks/use-photos.ts`)
+- Night mode check: every 1 minute (in `hooks/use-theme.ts`)
+
+## Testing
+
+The project includes a comprehensive test suite using Vitest and React Testing Library.
+
+### Running Tests
+```bash
+pnpm test              # Run all tests once
+pnpm test:watch        # Run tests in watch mode
+pnpm test:coverage     # Run tests with coverage report
+```
+
+### Test Structure
+- `__tests__/unit/` - Unit tests for utility functions and API helpers
+- `__tests__/integration/` - Integration tests for React hooks and API routes
 
 ## Design Notes
 

@@ -15,41 +15,69 @@ export type HolidayTheme = {
   }
 }
 
-// Helper function to calculate initial mode based on Eastern Time (fallback)
-function getInitialMode(): ThemeMode {
-  const now = new Date()
+export function getEasternTimeHour(date: Date = new Date()): number {
   const formatter = new Intl.DateTimeFormat("en-US", {
     timeZone: "America/New_York",
     hour: "numeric",
     hour12: false,
   })
-  const parts = formatter.formatToParts(now)
-  const hour = parseInt(parts.find(p => p.type === "hour")?.value || "0", 10)
-  const isNight = hour >= 20 || hour < 6
-  return isNight ? "night" : "day"
+  const parts = formatter.formatToParts(date)
+  return parseInt(parts.find(p => p.type === "hour")?.value || "0", 10)
 }
 
-// Check if current time is after sunset or before sunrise
-function isNightTime(sunTimes: SunTimes | null): boolean {
+export function isNightByHour(hour: number): boolean {
+  return hour >= 20 || hour < 6
+}
+
+export function getInitialMode(date: Date = new Date()): ThemeMode {
+  const hour = getEasternTimeHour(date)
+  return isNightByHour(hour) ? "night" : "day"
+}
+
+export function isNightTimeWithSunTimes(
+  sunTimes: SunTimes | null,
+  currentTime: Date = new Date()
+): boolean {
   if (!sunTimes) {
-    // Fallback to fixed hours if sun times not available
-    const now = new Date()
-    const formatter = new Intl.DateTimeFormat("en-US", {
-      timeZone: "America/New_York",
-      hour: "numeric",
-      hour12: false,
-    })
-    const parts = formatter.formatToParts(now)
-    const hour = parseInt(parts.find(p => p.type === "hour")?.value || "0", 10)
-    return hour >= 20 || hour < 6
+    const hour = getEasternTimeHour(currentTime)
+    return isNightByHour(hour)
   }
 
-  const now = new Date()
-  return now < sunTimes.sunrise || now >= sunTimes.sunset
+  return currentTime < sunTimes.sunrise || currentTime >= sunTimes.sunset
+}
+
+export function getEasternTimeMonthDay(date: Date = new Date()): string {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    month: "2-digit",
+    day: "2-digit",
+  })
+  const parts = formatter.formatToParts(date)
+  const month = parts.find(p => p.type === "month")?.value || "01"
+  const day = parts.find(p => p.type === "day")?.value || "01"
+  return `${month}-${day}`
+}
+
+export function findHolidayForDate(
+  date: Date,
+  holidayConfig: typeof holidays = holidays
+): HolidayTheme | null {
+  const monthDay = getEasternTimeMonthDay(date)
+
+  for (const [key, value] of Object.entries(holidayConfig)) {
+    if (value.dates.includes(monthDay)) {
+      return {
+        name: key,
+        theme: value.theme,
+        colors: value.colors,
+      }
+    }
+  }
+  return null
 }
 
 export function useTheme(sunTimes?: SunTimes | null) {
-  const [mode, setMode] = useState<ThemeMode>(getInitialMode)
+  const [mode, setMode] = useState<ThemeMode>(() => getInitialMode())
   const [holiday, setHoliday] = useState<HolidayTheme | null>(null)
   
   console.log("[Theme Debug] useTheme initialized, initial mode:", mode)
@@ -58,7 +86,7 @@ export function useTheme(sunTimes?: SunTimes | null) {
   useEffect(() => {
     const checkMode = () => {
       const now = new Date()
-      const isNight = isNightTime(sunTimes ?? null)
+      const isNight = isNightTimeWithSunTimes(sunTimes ?? null, now)
       
       if (sunTimes) {
         console.log("[Theme Debug] Using actual sun times:")
@@ -86,33 +114,17 @@ export function useTheme(sunTimes?: SunTimes | null) {
       const now = new Date()
       console.log("[Theme Debug] Current UTC/local time:", now.toISOString(), "Local:", now.toLocaleString())
       
-      // Always use Eastern Time (handles EST/EDT automatically)
-      const formatter = new Intl.DateTimeFormat("en-US", {
-        timeZone: "America/New_York",
-        month: "2-digit",
-        day: "2-digit",
-      })
-      const parts = formatter.formatToParts(now)
-      const month = parts.find(p => p.type === "month")?.value || "01"
-      const day = parts.find(p => p.type === "day")?.value || "01"
-
-      // Check for holidays (using Eastern Time date)
-      const monthDay = `${month}-${day}`
+      const monthDay = getEasternTimeMonthDay(now)
       console.log("[Theme Debug] Checking holidays for date:", monthDay)
 
-      for (const [key, value] of Object.entries(holidays)) {
-        if (value.dates.includes(monthDay)) {
-          console.log("[Theme Debug] Found holiday:", key)
-          setHoliday({
-            name: key,
-            theme: value.theme,
-            colors: value.colors,
-          })
-          return
-        }
+      const foundHoliday = findHolidayForDate(now)
+      if (foundHoliday) {
+        console.log("[Theme Debug] Found holiday:", foundHoliday.name)
+        setHoliday(foundHoliday)
+      } else {
+        console.log("[Theme Debug] No holiday found")
+        setHoliday(null)
       }
-      console.log("[Theme Debug] No holiday found")
-      setHoliday(null)
     }
 
     checkHoliday()

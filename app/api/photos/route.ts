@@ -1,13 +1,13 @@
 import { readdir } from "fs/promises"
 import { join } from "path"
 
-const imageExtensions = [".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg"]
-const videoExtensions = [".mp4", ".webm", ".mov"]
+export const IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg"]
+export const VIDEO_EXTENSIONS = [".mp4", ".webm", ".mov"]
 
-function getMediaType(file: string): "photo" | "video" | null {
+export function getMediaType(file: string): "photo" | "video" | null {
   const lower = file.toLowerCase()
-  if (imageExtensions.some((ext) => lower.endsWith(ext))) return "photo"
-  if (videoExtensions.some((ext) => lower.endsWith(ext))) return "video"
+  if (IMAGE_EXTENSIONS.some((ext) => lower.endsWith(ext))) return "photo"
+  if (VIDEO_EXTENSIONS.some((ext) => lower.endsWith(ext))) return "video"
   return null
 }
 
