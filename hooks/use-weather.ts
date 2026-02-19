@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { getWeather, type WeatherData } from "@/api/weather"
+import { getWeather, type WeatherData, type SunTimes } from "@/api/weather"
 
 export function useWeather() {
   const [weather, setWeather] = useState<WeatherData | null>(null)
@@ -29,3 +29,5 @@ export function useWeather() {
 
   return { weather, loading }
 }
+
+export type { SunTimes }
