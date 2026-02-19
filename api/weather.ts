@@ -108,11 +108,11 @@ const WMO_CODE_MAP: Record<number, { condition: WeatherCondition; description: s
   99: { condition: "thunderstorm", description: "Thunderstorm with heavy hail" },
 }
 
-function celsiusToFahrenheit(celsius: number): number {
+export function celsiusToFahrenheit(celsius: number): number {
   return Math.round((celsius * 9) / 5 + 32)
 }
 
-function parseWeatherCode(code: number): { condition: WeatherCondition; description: string } {
+export function parseWeatherCode(code: number): { condition: WeatherCondition; description: string } {
   return WMO_CODE_MAP[code] ?? { condition: "cloudy", description: "Unknown" }
 }
 

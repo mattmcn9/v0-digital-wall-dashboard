@@ -3,15 +3,15 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import { type Photo, type MediaType } from "@/api/media-types"
 
-const PHOTO_DISPLAY_TIME = 25000
-const MAX_VIDEO_DURATION = 180000 // 3 minutes in ms
-const VALID_MEDIA_TYPES: readonly MediaType[] = ["photo", "video"] as const
+export const PHOTO_DISPLAY_TIME = 25000
+export const MAX_VIDEO_DURATION = 180000 // 3 minutes in ms
+export const VALID_MEDIA_TYPES: readonly MediaType[] = ["photo", "video"] as const
 
-function isValidMediaType(value: unknown): value is MediaType {
+export function isValidMediaType(value: unknown): value is MediaType {
   return typeof value === "string" && VALID_MEDIA_TYPES.includes(value as MediaType)
 }
 
-function sanitizePhoto(item: unknown): Photo | null {
+export function sanitizePhoto(item: unknown): Photo | null {
   if (
     typeof item !== "object" ||
     item === null ||
@@ -40,7 +40,7 @@ function sanitizePhoto(item: unknown): Photo | null {
   }
 }
 
-function sanitizePhotos(data: unknown): Photo[] {
+export function sanitizePhotos(data: unknown): Photo[] {
   if (!Array.isArray(data)) return []
   return data.map(sanitizePhoto).filter((photo): photo is Photo => photo !== null)
 }
