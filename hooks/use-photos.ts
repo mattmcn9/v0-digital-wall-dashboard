@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, useRef } from "react"
-import { type Photo, type MediaType } from "@/api/google-photos"
+import { type Photo, type MediaType } from "@/api/media-types"
 
 const PHOTO_DISPLAY_TIME = 25000
 const MAX_VIDEO_DURATION = 180000 // 3 minutes in ms
