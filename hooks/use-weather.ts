@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { getWeather, getWeatherByCoords, type WeatherData } from "@/api/weather"
+import { getWeather, getWeatherByCoords, type WeatherData, type SunTimes } from "@/api/weather"
 
 const DEFAULT_COORDS = { latitude: 37.7749, longitude: -122.4194 } // San Francisco
 
@@ -40,3 +40,5 @@ export function useWeather() {
 
   return { weather, loading, error }
 }
+
+export type { SunTimes }

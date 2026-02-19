@@ -9,7 +9,7 @@ import { Clock } from "lucide-react"
 import { useEffect, useState } from "react"
 
 export default function DashboardPage() {
-  const { mode, holiday } = useThemeContext()
+  const { mode, holiday, sunTimes } = useThemeContext()
   const [currentTime, setCurrentTime] = useState<Date | null>(null)
   const [mounted, setMounted] = useState(false)
 
@@ -64,8 +64,14 @@ export default function DashboardPage() {
 
           {/* Mode indicator - compact */}
           <div className="flex items-center gap-2 rounded-full border bg-card px-3 py-1.5 text-xs text-card-foreground">
-            <div className={`h-2 w-2 rounded-full ${mode === "night" ? "bg-blue-500" : "bg-yellow-500"}`} />
-            <span className="font-medium capitalize">{mode}</span>
+            {sunTimes && (
+              <span>
+                {mode === "night" ? "☀️" : "🌙"}{" "}
+                {mode === "night"
+                  ? sunTimes.sunrise.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })
+                  : sunTimes.sunset.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })}
+              </span>
+            )}
             {holiday && (
               <>
                 <div className="h-3 w-px bg-border" />

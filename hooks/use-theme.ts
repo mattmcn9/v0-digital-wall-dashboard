@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import holidays from "@/config/holidays.json"
+import type { SunTimes } from "@/api/weather"
 
 export type ThemeMode = "day" | "night"
 export type HolidayTheme = {
@@ -14,7 +15,7 @@ export type HolidayTheme = {
   }
 }
 
-// Helper function to calculate initial mode based on Eastern Time
+// Helper function to calculate initial mode based on Eastern Time (fallback)
 function getInitialMode(): ThemeMode {
   const now = new Date()
   const formatter = new Intl.DateTimeFormat("en-US", {
@@ -28,38 +29,72 @@ function getInitialMode(): ThemeMode {
   return isNight ? "night" : "day"
 }
 
-export function useTheme() {
+// Check if current time is after sunset or before sunrise
+function isNightTime(sunTimes: SunTimes | null): boolean {
+  if (!sunTimes) {
+    // Fallback to fixed hours if sun times not available
+    const now = new Date()
+    const formatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/New_York",
+      hour: "numeric",
+      hour12: false,
+    })
+    const parts = formatter.formatToParts(now)
+    const hour = parseInt(parts.find(p => p.type === "hour")?.value || "0", 10)
+    return hour >= 20 || hour < 6
+  }
+
+  const now = new Date()
+  return now < sunTimes.sunrise || now >= sunTimes.sunset
+}
+
+export function useTheme(sunTimes?: SunTimes | null) {
   const [mode, setMode] = useState<ThemeMode>(getInitialMode)
   const [holiday, setHoliday] = useState<HolidayTheme | null>(null)
   
   console.log("[Theme Debug] useTheme initialized, initial mode:", mode)
 
+  // Update mode when sun times change or periodically
   useEffect(() => {
-    const checkTimeAndHoliday = () => {
+    const checkMode = () => {
+      const now = new Date()
+      const isNight = isNightTime(sunTimes ?? null)
+      
+      if (sunTimes) {
+        console.log("[Theme Debug] Using actual sun times:")
+        console.log("[Theme Debug] Sunrise:", sunTimes.sunrise.toLocaleTimeString())
+        console.log("[Theme Debug] Sunset:", sunTimes.sunset.toLocaleTimeString())
+        console.log("[Theme Debug] Current time:", now.toLocaleTimeString())
+      } else {
+        console.log("[Theme Debug] Sun times not available, using fallback hours")
+      }
+      
+      console.log("[Theme Debug] Setting mode to:", isNight ? "night" : "day")
+      setMode(isNight ? "night" : "day")
+    }
+
+    checkMode()
+    // Check every minute for more precise sunrise/sunset transitions
+    const interval = setInterval(checkMode, 60000)
+
+    return () => clearInterval(interval)
+  }, [sunTimes])
+
+  // Check for holidays separately
+  useEffect(() => {
+    const checkHoliday = () => {
       const now = new Date()
       console.log("[Theme Debug] Current UTC/local time:", now.toISOString(), "Local:", now.toLocaleString())
       
       // Always use Eastern Time (handles EST/EDT automatically)
       const formatter = new Intl.DateTimeFormat("en-US", {
         timeZone: "America/New_York",
-        hour: "numeric",
-        hour12: false,
         month: "2-digit",
         day: "2-digit",
       })
       const parts = formatter.formatToParts(now)
-      const hour = parseInt(parts.find(p => p.type === "hour")?.value || "0", 10)
       const month = parts.find(p => p.type === "month")?.value || "01"
       const day = parts.find(p => p.type === "day")?.value || "01"
-      
-      console.log("[Theme Debug] Eastern Time parts:", { hour, month, day })
-      console.log("[Theme Debug] All formatter parts:", parts)
-
-      // Night mode between 8 PM and 6 AM Eastern Time
-      const isNight = hour >= 20 || hour < 6
-      console.log("[Theme Debug] isNight calculation:", `hour (${hour}) >= 20 || hour < 6 = ${isNight}`)
-      console.log("[Theme Debug] Setting mode to:", isNight ? "night" : "day")
-      setMode(isNight ? "night" : "day")
 
       // Check for holidays (using Eastern Time date)
       const monthDay = `${month}-${day}`
@@ -80,8 +115,8 @@ export function useTheme() {
       setHoliday(null)
     }
 
-    checkTimeAndHoliday()
-    const interval = setInterval(checkTimeAndHoliday, 600000) // Check every 10 minutes
+    checkHoliday()
+    const interval = setInterval(checkHoliday, 600000) // Check every 10 minutes
 
     return () => clearInterval(interval)
   }, [])
