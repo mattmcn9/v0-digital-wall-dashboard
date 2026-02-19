@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 import Image from "next/image"
 
 export function PhotoSlideshow() {
-  const { currentPhoto, loading, currentIndex } = usePhotos()
+  const { currentPhoto, loading, currentIndex, onVideoEnd } = usePhotos()
   const { mode } = useThemeContext()
 
   if (loading) {
@@ -26,19 +26,32 @@ export function PhotoSlideshow() {
     )
   }
 
+  const isVideo = currentPhoto.type === "video"
+
   return (
     <div className="relative h-full overflow-hidden rounded-xl border bg-card">
       <div
         className={cn("relative h-full w-full transition-opacity duration-1000", mode === "night" && "opacity-70")}
         key={currentIndex}
       >
-        <Image
-          src={currentPhoto.url || "/placeholder.svg"}
-          alt={currentPhoto.caption || "Photo"}
-          fill
-          className="object-cover"
-          priority
-        />
+        {isVideo ? (
+          <video
+            src={currentPhoto.url}
+            className="h-full w-full object-cover"
+            autoPlay
+            muted
+            playsInline
+            onEnded={onVideoEnd}
+          />
+        ) : (
+          <Image
+            src={currentPhoto.url || "/placeholder.svg"}
+            alt={currentPhoto.caption || "Photo"}
+            fill
+            className="object-cover"
+            priority
+          />
+        )}
 
         {/* Gradient overlay for caption readability */}
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-6">
