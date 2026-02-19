@@ -13,6 +13,7 @@ export default function DashboardPage() {
   const [currentTime, setCurrentTime] = useState<Date | null>(null)
   const [mounted, setMounted] = useState(false)
 
+  
   useEffect(() => {
     setMounted(true)
     setCurrentTime(new Date())
