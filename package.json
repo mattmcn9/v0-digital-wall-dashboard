@@ -82,7 +82,7 @@
     "@vitejs/plugin-react": "^5.1.4",
     "conventional-changelog-conventionalcommits": "^8.0.0",
     "eslint": "^9.28.0",
-    "eslint-config-next": "^15.3.3",
+    "eslint-config-next": "^16.1.6",
     "jsdom": "^28.1.0",
     "postcss": "^8.5",
     "semantic-release": "^24.2.6",
