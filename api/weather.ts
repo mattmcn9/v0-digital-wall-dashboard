@@ -19,6 +19,7 @@ type Coordinates = {
   region?: string
 }
 
+
 const WMO_CODE_MAP: Record<number, { condition: WeatherCondition; description: string }> = {
   0: { condition: "sunny", description: "Clear sky" },
   1: { condition: "sunny", description: "Mainly clear" },
