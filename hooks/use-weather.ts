@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { getWeather, getWeatherByCoords, type WeatherData, type SunTimes } from "@/api/weather"
 
-const DEFAULT_COORDS = { latitude: 37.7749, longitude: -122.4194 } // San Francisco
+const DEFAULT_COORDS = { latitude: 41.5634, longitude: -70.5548 } // East Falmouth, MA 02536
 
 export function useWeather() {
   const [weather, setWeather] = useState<WeatherData | null>(null)
